@@ -1,0 +1,7 @@
+[run]
+branch = True
+source = nigraph/*
+include = nigraph/*
+omit = */setup.py
+[report]
+include = nigraph/*
