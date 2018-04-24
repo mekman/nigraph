@@ -4,3 +4,4 @@ matplotlib
 nibabel
 scikit-learn
 networkx
+python-igraph
