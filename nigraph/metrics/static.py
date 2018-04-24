@@ -80,11 +80,12 @@ from copy import deepcopy
 from sklearn.utils import graph_shortest_path as skl_graph
 from sklearn.utils.graph import connected_components as cs_graph_components
 
-from ..utils import convert_to_graph, inverse_adj, subgraph, remove_nodes, \
-                    make_undirected
-from ..utils import tril_indices, triu_indices
-from ..utils import remove_self_loops, graph_type, number_edges, number_nodes,\
-                    is_directed, laplacian_matrix
+from ..utilities import convert_to_graph, inverse_adj, subgraph, \
+                    remove_nodes, make_undirected
+from ..utilities import tril_indices, triu_indices
+from ..utilities import remove_self_loops, graph_type, number_edges, \
+                    number_nodes, is_directed, laplacian_matrix
+
 # from ...community.utils import num_communities, is_overlapping, \
 #                     unique_communities
 # if ex['graph_tool'] != -1:
