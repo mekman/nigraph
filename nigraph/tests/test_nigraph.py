@@ -6,6 +6,6 @@ import nigraph as ng
 
 
 def test_thresholding_abs():
-    A = np.identidy(3)
+    A = np.identity(3)
     A_thr = ng.thresholding_abs(A, 1)
     npt.assert_equal(A, A_thr)
