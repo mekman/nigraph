@@ -81,18 +81,17 @@ from sklearn.utils import graph_shortest_path as skl_graph
 from sklearn.utils.graph import connected_components as cs_graph_components
 
 from ..utilities import convert_to_graph, inverse_adj, subgraph, \
-                    remove_nodes, make_undirected
+    remove_nodes, make_undirected
 from ..utilities import tril_indices, triu_indices
 from ..utilities import remove_self_loops, graph_type, number_edges, \
-                    number_nodes, is_directed, laplacian_matrix
+    number_nodes, is_directed, laplacian_matrix
 
-# from ...community.utils import num_communities, is_overlapping, \
-#                     unique_communities
-# if ex['graph_tool'] != -1:
-#     import graph_tool.all as gt
-#
-# if ex['igraph'] != -1:
-#     import igraph as ig
+from ..utilities import num_communities, is_overlapping, unique_communities
+
+advanced = False
+if advanced:
+    # import igraph as ig
+    import graph_tool.all as gt
 
 # TODO this module needs a re-ordering of the functions
 __all__ = ['degree', 'betweenness_centrality', 'dist_matrix_topological',
@@ -1056,10 +1055,10 @@ def nodal_average_shortest_path_length(A, weighted=False, auto_inv=True):
     avg = np.zeros(n_nodes)
     c = 0
     for node in G:
-        l = list(path_length(G, node).values())
-        avg[c] = sum(l)
-        # - #
+        length = list(path_length(G, node).values())
+        avg[c] = sum(length)
         c += 1
+
     return avg / (n_nodes * (n_nodes - 1))
 
 
@@ -1490,7 +1489,7 @@ def size_giant_component(A, directed=False, perc=True):
     n_comp, label = cs_graph_components(A, directed)
     # -2 indicates nodes with 0 degree
     # not anymore with recent sklearn > 0.13, but not an issue for the GCC
-    size_gcc = np.bincount(label[label!=-2]).max()  # size largest component
+    size_gcc = np.bincount(label[label != -2]).max()  # size largest component
 
     if perc:
         size_gcc = size_gcc * 100. / n_nodes  # in %
@@ -2093,7 +2092,7 @@ def small_world_scalar(A, weighted=False, method='watts', n_iter=100):
 
     else:
         C = nx.algorithms.average_clustering(GG)
-        L = nx.algorithms.average_shortest_path_length(GG)  #weighted=weighted)
+        L = nx.algorithms.average_shortest_path_length(GG)  # weighted=weighted)
 
         # create a random graph with same characteristics; sensu Humphries 2008 a Erdős-Rényi graph
         # determine p
@@ -2113,7 +2112,7 @@ def small_world_scalar(A, weighted=False, method='watts', n_iter=100):
             RR = RCC[0]  # giant connected component
 
             C_rands[i] = nx.algorithms.average_clustering(RR)
-            L_rands[i] = nx.average_shortest_path_length(RR)  #weighted=False)
+            L_rands[i] = nx.average_shortest_path_length(RR)  # weighted=False)
             i += 1
 
         # average C_rands & L_rands
@@ -2891,7 +2890,7 @@ def module_centrality(A, weighted=False, module=None, start_points=None,
 
     # n_nodes_module = len(module)
     n_path_p = 0.  # number of total shortest paths
-    sp_path_counter = 0.  #  number sp crossing the module
+    sp_path_counter = 0.  # number sp crossing the module
 
     if impl is 'nx':
         # pure nx implementation

@@ -24,6 +24,7 @@ install:
   - activate test-environment
   - pip install coverage
   - pip install nibabel
+  - pip install python-igraph
   - python setup.py install
 
 test_script:
