@@ -216,7 +216,7 @@ Algortithm Overview
 
 import numpy as np
 import igraph as ig
-from ..utilities import graph_type, convert_to_graph
+from .utilities import graph_type, convert_to_graph
 
 
 def label_propagation(A, weighted=False):

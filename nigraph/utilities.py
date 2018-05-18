@@ -8,7 +8,6 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 import scipy.sparse as sp
 import scipy.io as sio
-import graph_tool.all as gt
 import igraph as ig
 import networkx as nx
 from copy import deepcopy
@@ -325,6 +324,7 @@ def graph_type(G):
     >>> graph_type(A)
     'ig'
     """
+    import graph_tool.all as gt
 
     gtype = 'unknown'
     if type(G) is nx.Graph:
@@ -438,6 +438,7 @@ def convert_to_graph(A, weighted=False, directed=False, fmt='nx',
             g = nx.Graph(A)
 
         if fmt == 'gt*':
+            import graph_tool.all as gt
             # convert to nx.Graph, save as xml and load in graph_tool
             # is faster than np -> graph_tool
             graph_file = tempfile.NamedTemporaryFile(mode='w+b', suffix='.xml',
