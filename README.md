@@ -23,7 +23,7 @@ $ python
 >>> timeseries = nig.load_mri('rest.nii.gz', 'brain_mask.nii.gz')
 >>> adjacency = nig.adj_static(timeseries)
 >>> adjacency_thr = nig.thresholding_prop(adjacency, thr=0.1)
->>> bc = betweenness_centrality(adjacency_thr)
+>>> bc = nig.betweenness_centrality(adjacency_thr)
 ```
 
 ### Installation

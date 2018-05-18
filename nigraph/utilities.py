@@ -111,8 +111,8 @@ def make_unweighted(A, copy=False):
     A : ndarray, shape(n, n)
         Adjacency matrix of the graph.
     copy : boolean
-        create a copy of the data (default=False). Otherwise the data is changed
-        in-place.
+        create a copy of the data (default=False). Otherwise the data is
+        changed in-place.
 
     Returns
     -------
@@ -167,7 +167,7 @@ def fill_diagonal(A, val):
     """
 
     # code from nitime: http://nipy.sourceforge.net/nitime/
-    # This functionality can be obtained via ``np.diag_indices``, but internally
+    # This functionality can be obtained via ``np.diag_indices``,but internally
     # this version uses a much faster implementation that never constructs the
     # indices and uses simple slicing.
     step = A.shape[1] + 1
@@ -299,6 +299,56 @@ def edges(A, nodes=None):
     return el, w.flatten()
 
 
+def graph_type(G):
+    """returns the graph type
+
+    Parameters
+    ----------
+    G : graph object
+        Representation of the adjacency matrix.
+
+    Returns
+    -------
+    gtype : string ['unknown'|'nx'|'ig'|'np'|'bct'|'mat'|'edge_list']
+        Graph format.
+
+    See Also
+    --------
+    convert_to_graph: Convert a numpy array into a graph object
+
+    Examples
+    --------
+    >>> A = get_random_graph(fmt='np')
+    >>> graph_type(A)
+    'np'
+    >>> A = get_random_graph(fmt='ig')
+    >>> graph_type(A)
+    'ig'
+    """
+
+    gtype = 'unknown'
+    if type(G) is nx.Graph:
+        gtype = 'nx'
+    elif type(G) is np.matrix:
+        gtype = 'np'
+    elif isinstance(G, np.ndarray):
+        # NB this will also work for memmap arrays
+        gtype = 'np'
+    elif type(G) is ig.Graph:
+        gtype = 'ig'
+    elif type(G) is gt.Graph:
+        gtype = 'gt'
+    elif type(G) is str:
+        # TODO this is not a strong indication for mat!
+        gtype = 'mat'
+    elif type(G) is list:
+        gtype = 'edge_list'
+    # elif type(G) is list:
+    #     gtype = 'bct'
+
+    return gtype
+
+
 def convert_to_graph(A, weighted=False, directed=False, fmt='nx',
                      struc_array_name=None, rm_self_loops=True):
     """converts a numpy array into a graph object
@@ -390,10 +440,12 @@ def convert_to_graph(A, weighted=False, directed=False, fmt='nx',
         if fmt == 'gt*':
             # convert to nx.Graph, save as xml and load in graph_tool
             # is faster than np -> graph_tool
-            graph_file = tempfile.NamedTemporaryFile(mode='w+b', suffix='.xml', dir='./', delete=True)
+            graph_file = tempfile.NamedTemporaryFile(mode='w+b', suffix='.xml',
+                                                     dir='./', delete=True)
             nx.write_graphml(g, graph_file)
             graph_file.flush()
-            g = gt.load_graph(graph_file.name)  # in gt 2.2.15: file_format='xml', later fmt='xml'
+            # in gt 2.2.15: file_format='xml', later fmt='xml'
+            g = gt.load_graph(graph_file.name)
             graph_file.close()
 
     elif fmt == 'gt':
@@ -418,7 +470,8 @@ def convert_to_graph(A, weighted=False, directed=False, fmt='nx',
         g = gt.Graph(directed=directed)
         g.add_vertex(n_nodes)
 
-        # in recent git version this is now possible and should provide a huge speed-up
+        # in recent git version this is now possible
+        # and should provide a huge speed-up
         # g.add_edge_list(transpose(nonzero(a)))
 
         for i in xrange(n_nodes):
@@ -492,8 +545,8 @@ def convert_to_graph(A, weighted=False, directed=False, fmt='nx',
         #     # only unweighted so far
         #     raise NotImplementedError
 
-        # this might be more memory efficient for larger graphs
-        # see http://lists.gnu.org/archive/html/igraph-help/2009-11/msg00213.html
+        # this might be more memory efficient for larger graphs see
+        # http://lists.gnu.org/archive/html/igraph-help/2009-11/msg00213.html
         # edgelist = []
         # for v1, row in enumerate(A):
         #   edgelist.extend( [v2 for v2, element in row if element > 0])
