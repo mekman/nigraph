@@ -11,7 +11,7 @@ import networkx as nx
 from scipy.stats import spearmanr
 
 from .utilities import tril_indices, triu_indices, convert_to_graph, \
-                       fill_diagonal
+    fill_diagonal
 
 
 def adj_static(ts, measure='corr', pval=False, TR=2, fq_l=None, fq_u=None,
