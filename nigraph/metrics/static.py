@@ -159,7 +159,7 @@ def degree(A, directed=False, ignore_self_loops=False):
 
     Examples
     --------
-    >>> from nt import get_graph, degree
+    >>> from nigraph import get_graph, degree
     >>> # unweighted degree
     >>> A = get_graph(weighted=False)
     >>> k = degree(A)
@@ -267,7 +267,7 @@ def betweenness_centrality(A, weighted=False, directed=False, norm=True):
 
     Examples
     --------
-    >>> from nt import ahn_graph, betweenness_centrality
+    >>> from nigraph import ahn_graph, betweenness_centrality
     >>> A = ahn_graph()
     >>> betweenness_centrality(A)
     array([ 0., 0., 0., 0.75, 0., 0., 0.42857143, 0., 0.])
@@ -371,7 +371,7 @@ def dist_matrix_topological(A, weighted=False, directed=False, norm=False,
 
     Examples
     --------
-    >>> from nt import get_random_graph, dist_matrix_spatial
+    >>> from nigraph import get_random_graph, dist_matrix_spatial
     >>> A = get_random_graph()
     >>> print A.shape
     (30, 30)
@@ -438,7 +438,7 @@ def avg_shortest_path_length(A, weighted=False, directed=False, auto_inv=True):
 
     Examples
     --------
-    >>> from nt import karate_club, avg_shortest_path_length
+    >>> from nigraph import karate_club, avg_shortest_path_length
     >>> A = karate_club()
     >>> v = avg_shortest_path_length(A)
     """
@@ -514,7 +514,7 @@ def local_characteristic_path_length(A, weighted=False, auto_inv=True):
 
     Examples
     --------
-    >>> from nt import karate_club, local_characteristic_path_length
+    >>> from nigraph import karate_club, local_characteristic_path_length
     >>> A = karate_club()
     >>> L = local_characteristic_path_length(A)
     """
@@ -707,7 +707,7 @@ def between_module_closeness(A, n2c, weighted=False, auto_inv=True):
 
     Examples
     --------
-    >>> from nt import get_random_graph, between_module_closeness
+    >>> from nigraph import get_random_graph, between_module_closeness
     >>> A = get_random_graph()
     >>> n2c = np.zeros(A.shape[0])
     >>> n2c[0:5] = 1
@@ -978,7 +978,7 @@ def within_module_metric(A, weighted=False, partition=None, metric='degree'):
 
     Examples
     --------
-    >>> from nt import karate_club, leading_eigenvector, within_module_metric
+    >>> from nigraph import karate_club, leading_eigenvector, within_module_metric
     >>> A = karate_club()
     >>> n2c, _ = leading_eigenvector(A) # find a graph partition
     >>> w = within_module_metric(A, weighted=False, partition=n2c)
@@ -1033,7 +1033,7 @@ def nodal_average_shortest_path_length(A, weighted=False, auto_inv=True):
 
     Examples
     --------
-    >>> from nt import karate_club, nodal_average_shortest_path_length
+    >>> from nigraph import karate_club, nodal_average_shortest_path_length
     >>> A = karate_club()
     >>> pl = nodal_average_shortest_path_length(A)
     >>> k = degree(A)
@@ -1107,7 +1107,7 @@ def within_module_degree_z_score(A, partition=None):
 
     Examples
     --------
-    >>> from nt import karate_club, leading_eigenvector, within_module_degree_z_score
+    >>> from nigraph import karate_club, leading_eigenvector, within_module_degree_z_score
     >>> A = karate_club()
     >>> n2c, _ = leading_eigenvector(A) # find a graph partition
     >>> z = within_module_degree_z_score(A, partition=n2c)
@@ -1176,14 +1176,14 @@ def participation_coefficient(A, partition=None, theta=None):
 
     Examples
     --------
-    >>> from nt import karate_club, leading_eigenvector, participation_coefficient
+    >>> from nigraph import karate_club, leading_eigenvector, participation_coefficient
     >>> A = karate_club()
     >>> n2c, _ = leading_eigenvector(A) # find a graph partition
     >>> p = participation_coefficient(A, partition=n2c)
 
     There is also some *experimental* support for overlapping communities
 
-    >>> from nt import expectation_maximization_overlapping
+    >>> from nigraph import expectation_maximization_overlapping
     >>> A = karate_club()
     >>> n2c, extras = expectation_maximization_overlapping(A, n_partitions=2)
     >>> theta = extras['theta_matrix']
@@ -1246,7 +1246,7 @@ def cumulative_degree_distribution(A):
 
     Examples
     --------
-    >>> from nt import cat_cortex, cumulative_degree_distribution
+    >>> from nigraph import cat_cortex, cumulative_degree_distribution
     >>> A = cat_cortex()
     >>> res = cumulative_degree_distribution(A)
     >>> #plt.loglog(res[0],res[1]) # plot as log-log
@@ -1298,7 +1298,7 @@ def number_k_max(A, perc=False):
 
     Examples
     --------
-    >>> from nt import get_graph, number_k_max
+    >>> from nigraph import get_graph, number_k_max
     >>> A = get_graph()
     >>> print number_k_max(A, perc=False)
     4
@@ -1362,7 +1362,7 @@ def wiring_costs(A, fmt='np'):
 
     Examples
     --------
-    >>> from nt import get_graph, wiring_costs, thresholding_prop
+    >>> from nigraph import get_graph, wiring_costs, thresholding_prop
     >>> A = get_graph(weighted=True)
     >>> print 'costs: %.2f' %(wiring_costs(A))
     costs: 0.06
@@ -1431,7 +1431,7 @@ def node_importance(A, weighted=False, metric='efficiency_global'):
 
     Examples
     --------
-    >>> from nt import karate_club, node_importance
+    >>> from nigraph import karate_club, node_importance
     >>> A = karate_club()
     >>> i = node_importance(A, weighted=False)
     >>> print 'Most important node:', np.where(i == i[i>0].min())[0]
@@ -1475,7 +1475,7 @@ def size_giant_component(A, directed=False, perc=True):
 
     Examples
     --------
-    >>> from nt import get_graph, size_giant_component
+    >>> from nigraph import get_graph, size_giant_component
     >>> A = get_graph()
     >>> print size_giant_component(A, perc=True)
     48.3870967742
@@ -1552,7 +1552,7 @@ def synchronizability(A, weighted=False):
 
     Examples
     --------
-    >>> from nt import karate_club, synchronizability
+    >>> from nigraph import karate_club, synchronizability
     >>> A = karate_club()
     >>> print synchronizability(A)
     0.0258329977742
@@ -1588,7 +1588,7 @@ def algebraic_connectivity(A):
 
     Examples
     --------
-    >>> from nt import karate_club, algebraic_connectivity
+    >>> from nigraph import karate_club, algebraic_connectivity
     >>> A = karate_club()
     >>> print algebraic_connectivity(A)
     0.468525226701
@@ -1618,7 +1618,7 @@ def adjacency_spectrum(A):
 
     Examples
     --------
-    >>> from nt import karate_club, adjacency_spectrum
+    >>> from nigraph import karate_club, adjacency_spectrum
     >>> A = karate_club()
     >>> s = adjacency_spectrum(A)
     """
@@ -1657,7 +1657,7 @@ def dynamical_importance(A):
 
     Examples
     --------
-    >>> from nt import karate_club, dynamical_importance
+    >>> from nigraph import karate_club, dynamical_importance
     >>> A = karate_club()
     >>> v = dynamical_importance(A)
     """
@@ -1721,7 +1721,7 @@ def efficiency_global(A, weighted=False, directed=False, auto_inv=True):
 
     Examples
     --------
-    >>> from nt import get_graph
+    >>> from nigraph import get_graph
     >>> A = get_graph()
     >>> print efficiency_global(A)
     0.114582693292
@@ -1801,7 +1801,7 @@ def efficiency_cost(A, weighted=False, eg=None, auto_inv=True):
 
     Examples
     --------
-    >>> from nt import get_random_graph
+    >>> from nigraph import get_random_graph
     >>> A = get_random_graph()
     >>> eg = efficiency_global(A)
     >>> print eg
@@ -1878,7 +1878,7 @@ def efficiency_local(A, weighted=False, auto_inv=True):
 
     Examples
     --------
-    >>> from nt import karate_club, efficiency_local
+    >>> from nigraph import karate_club, efficiency_local
     >>> A = karate_club()
     >>> print efficiency_local(A)
     0.64512651020003953
@@ -1980,7 +1980,7 @@ def efficiency_nodal(A, weighted=False, auto_inv=True):
 
     Examples
     --------
-    >>> from nt import karate_club, efficiency_nodal
+    >>> from nigraph import karate_club, efficiency_nodal
     >>> A = karate_club()
     >>> # local efficiency for each member of the karate club
     >>> print efficiency_nodal(A)
@@ -2062,7 +2062,7 @@ def small_world_scalar(A, weighted=False, method='watts', n_iter=100):
 
     Examples
     --------
-    >>> from nt import karate_club, small_world_scalar
+    >>> from nigraph import karate_club, small_world_scalar
     >>> A = karate_club()
     >>> C_ratio, L_ratio, S = small_world_scalar(A)
     """
@@ -2179,7 +2179,7 @@ def small_world_scalar_faster(A, weighted=False, n_iter=100):
 
     Examples
     --------
-    >>> from nt import karate_club, small_world_scalar_faster
+    >>> from nigraph import karate_club, small_world_scalar_faster
     >>> A = karate_club()
     >>> C_ratio, L_ratio, S = small_world_scalar_faster(A)
     """
@@ -2285,7 +2285,7 @@ def controllability(A, directed=True, perc=True):
     Determine the percentage of nodes that need to be controlled in order to
     gain full 'controll' over the neuronal network of Caenorhabditis elegans.
 
-    >>> from nt import celegans, controllability, number_nodes
+    >>> from nigraph import celegans, controllability, number_nodes
     >>> A = celegans()
     >>> print number_nodes(A)
     297
@@ -2452,7 +2452,7 @@ def rich_club_coefficients(ADJ, n_per=0, n_swap=1000, fmt='np'):
 
     Examples
     --------
-    >>> from nt import get_random_graph, rich_club_coefficients
+    >>> from nigraph import get_random_graph, rich_club_coefficients
     >>> A = get_random_graph(fmt='np')
     >>> rc, r = rich_club_coefficients(A, n_per=0)
     >>> rc[0] # un-normalized rich-club coefficient
@@ -2579,7 +2579,7 @@ def rich_club_coefficient(A, weighted=False, k_level_max=None):
 
     Examples
     --------
-    >>> from nt import macaque_cortical, rich_club_coefficient, cat_cortex
+    >>> from nigraph import macaque_cortical, rich_club_coefficient, cat_cortex
     >>> A = macaque_cortical()
     >>> rcc, r = rich_club_coefficient(A) # un-normalized rich-club coefficient
 
@@ -2671,7 +2671,7 @@ def vulnerability(A, weighted=False, auto_inv=True):
 
     Examples
     --------
-    >>> from nt import get_random_graph, vulnerability
+    >>> from nigraph import get_random_graph, vulnerability
     >>> A = get_random_graph()
     >>> v = vulnerability(A, weighted=False)
     >>> e = efficiency_nodal(A)
@@ -2752,7 +2752,7 @@ def vulnerability(A, weighted=False, auto_inv=True):
 #
 #     Examples
 #     --------
-#     >>> from nt import powerlaw_simple_and_connected
+#     >>> from nigraph import powerlaw_simple_and_connected
 #     >>> A = powerlaw_simple_and_connected(10000, alpha=2)
 #     >>> print powerlaw_exponent(A)
 #     >>> (2.0298753310495976, 6)
@@ -2851,7 +2851,7 @@ def module_centrality(A, weighted=False, module=None, start_points=None,
 
     Examples
     --------
-    >>> from nt import get_graph
+    >>> from nigraph import get_graph
     >>> A = get_graph(weighted=True)
     >>> m=np.arange(20)
     >>> s=np.arange(11)+20
@@ -2990,7 +2990,7 @@ def diversity_coefficient(A, partition=None):
 
     Examples
     --------
-    >>> from nt import karate_club, leading_eigenvector
+    >>> from nigraph import karate_club, leading_eigenvector
     >>> from scipy.stats import pearsonr
     >>> A = karate_club()
     >>> n2c, _ = leading_eigenvector(A) # find a graph partition
@@ -3048,7 +3048,7 @@ def google_matrix(A, alpha=0.85, personalization=None):
 
     Examples
     --------
-    >>> from nt import get_graph
+    >>> from nigraph import get_graph
     >>> A = get_graph()
     >>> M = google_matrix(A, alpha=0.85)
     """
@@ -3130,7 +3130,7 @@ def eigenvector_centrality(A):
 
     Examples
     --------
-    >>> from nt import cat_cortex
+    >>> from nigraph import cat_cortex
     >>> A = cat_cortex()
     >>> v = eigenvector_centrality(A)
     """
@@ -3205,7 +3205,7 @@ def subgraph_centrality(A):
 
     Examples
     --------
-    >>> from nt import cat_cortex
+    >>> from nigraph import cat_cortex
     >>> A = cat_cortex()
     >>> A[A!=0] = 1 # make unweighted
     >>> v = subgraph_centrality(A)
@@ -3276,7 +3276,7 @@ def resolvent_centrality(A):
 
     Examples
     --------
-    >>> from nt import cat_cortex
+    >>> from nigraph import cat_cortex
     >>> A = cat_cortex()
     >>> A[A!=0] = 1 # make unweighted
     >>> v = resolvent_centrality(A)
@@ -3337,7 +3337,7 @@ def pagerank(A, alpha=0.85, personalization=None, impl='numpy'):
 
     Examples
     --------
-    >>> from nt import get_graph
+    >>> from nigraph import get_graph
     >>> A = get_graph()
     >>> p = pagerank(A, alpha=0.85)
     """
@@ -3436,7 +3436,7 @@ def spread_of_infection(A, weighted=False, n_steps=100, initial_infected=None,
 
     Examples
     --------
-    >>> from nt import spread_of_infection
+    >>> from nigraph import spread_of_infection
     >>> import matplotlib.pylab as plt
     >>> A = np.array([[ 0. ,  1. ,  0. ,  0. ,  1. ,  0. ],
                       [ 1. ,  0. ,  1. ,  0. ,  0. ,  0. ],
@@ -3461,7 +3461,7 @@ def spread_of_infection(A, weighted=False, n_steps=100, initial_infected=None,
 
     First, we generate our functional network based on the AAL template.
 
-    >>> from nt import aal, get_fmri_rss_data, load_roi_mri, adj_static, thresholding_prop, dist_matrix_spatial
+    >>> from nigraph import aal, get_fmri_rss_data, load_roi_mri, adj_static, thresholding_prop, dist_matrix_spatial
     >>> _, mpath, labels, coords = aal(n=116, space='3mm')
     >>> _, fpath = get_fmri_rss_data()
     >>> ts = load_roi_mri(fpath, mpath)
