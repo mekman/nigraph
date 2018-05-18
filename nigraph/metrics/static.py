@@ -86,7 +86,7 @@ from ..utilities import tril_indices, triu_indices
 from ..utilities import remove_self_loops, graph_type, number_edges, \
     number_nodes, is_directed, laplacian_matrix
 
-from ..utilities import num_communities, is_overlapping, unique_communities
+# from ..utilities import num_communities, is_overlapping, unique_communities
 
 advanced = False
 if advanced:
@@ -3565,7 +3565,7 @@ def spread_of_infection(A, weighted=False, n_steps=100, initial_infected=None,
         visit_times = np.zeros((n_iter, n_nodes))
         for iter in range(n_iter):
             if verbose:
-                print ' #iter %s // %s' %(iter + 1, n_iter)
+                print ' #iter %s // %s' %( iter + 1, n_iter )
             visit_time = _run_network()
             visit_times[iter] = visit_time
 
@@ -3578,7 +3578,7 @@ def spread_of_infection(A, weighted=False, n_steps=100, initial_infected=None,
         visit_times = np.zeros(n_nodes)
         for iter in range(n_iter):
             if verbose:
-                print ' #iter %s // %s' %(iter + 1, n_iter)
+                print ' #iter %s // %s' %( iter + 1, n_iter )
             visit_time = _run_network()
             if visit_time[visit_time < 0].size > 0:
                 print 'warning: not all nodes were visited, consider increasing n_steps'

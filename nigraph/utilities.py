@@ -587,3 +587,330 @@ def convert_to_graph(A, weighted=False, directed=False, fmt='nx',
         raise ValueError('Specified format is not known')
 
     return g
+
+
+def inverse_adj(A, method='inv', norm=False, copy=False):
+    r"""returns the inverse of the weighted adjacency matrix
+    (directed/undirected)
+
+    The inversion of the edge weight `w` is required for weighted network
+    metrics that are based on the concept of *topological distance*. In that
+    case, high values are interpreted as more difficult to travel. Therefore
+    for weighted graphs the adjacency matrix needs to be inverted.
+
+    Parameters
+    ----------
+    A : ndarray, shape(n, n)
+        Weighted adjacency matrix of the graph.
+    method : string ['inv'|'sub'|'exp']
+        Method to calculate the inverse of the edge weights `v` (default='inv')
+
+        * ``inv``: weight=1/v
+        * ``sub``: weight=max(v)-v
+        * ``exp``: weight=exp(-v)
+
+    norm : boolean
+        Normalize the inverse adjacency matrix to the range [0,1]
+        (default=False).
+
+    Returns
+    -------
+    I : ndarray, shape(n, n)
+        Inverse, weighted adjacency matrix of the graph.
+
+    Examples
+    --------
+    >>> data = get_fmri_data()
+    >>> A = adj_calculation(data)
+    >>> A = thresholding_abs(A, 0.4)
+    >>> print A[0,1] # edge weight from node 0 to node 1
+    0.55037577886280387
+
+    >>> I = inverse_adj(A, method='inv', norm=False)
+    >>> print I[0,1] # inverse edge weight from node 0 to node 1
+    1.816940422171589
+    """
+
+    if method == 'inv':
+        ADJ_inv = A.copy()
+        ADJ_inv **= -1
+        idx = np.isinf(ADJ_inv)
+        ADJ_inv[idx] = 0
+
+        # XXX more eff to use np.nan_to_num?
+        # ADJ_inv
+    elif method == 'sub':
+        # XXX untested
+        # enforce diag to be one?
+        ADJ_inv = np.zeros((A.shape))
+        ADJ_inv[:, :] = A.max()
+        ADJ_inv -= A
+    elif method == 'exp':
+        # XXX untested
+        A *= -1
+        ADJ_inv = np.exp(A)
+
+    if norm:
+        ADJ_inv /= np.max(ADJ_inv)  # norm
+    return ADJ_inv
+
+
+def subgraph(A, idx, idy=None):
+    """returns a subgraph with specified nodes
+
+    Parameters
+    ----------
+    A : ndarray, shape(n, n)
+        Adjacency matrix of the graph.
+    idx : ndarray, shape(i, )
+        Node ids for the subgraph.
+    idy : ndarray, shape(i, )
+        Node ids for the subgraph (default=None).
+
+    Returns
+    -------
+    SG : ndarray, shape(len(ids), len(ids))
+        Adjacency matrix of the subgraph.
+
+    Notes
+    -----
+    The ``idy`` parameter allows e.g. to construct a subgraph between two
+    communities (see examples).
+
+    See also
+    --------
+    remove_nodes: return a graph *without* the specified node ids
+
+    Examples
+    --------
+    >>> A = get_random_graph()
+    >>> print A.shape
+    (30, 30)
+    >>> SG = subgraph(A, [0,3,4])
+    >>> print SG.shape
+    (3, 3)
+
+    >>> # Create a subgraph for nodes forming a community
+    >>> n2c, _ = leading_eigenvector(A, n_partitions=2)
+    >>> print n2c
+    array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+           1, 1, 1, 1, 1, 0, 0])
+    >>> # subgraph with nodes in community 0
+    >>> SG = subgraph(A, np.where(n2c == 0)[0])
+
+    This forms a subgraph that contains the connections between community 0 and
+    community 1. Note that this however does not have to necessarily be a
+    squared adjacency matrix.
+
+    >>> SG_btw = subgraph(A, np.where(n2c == 0)[0], np.where(n2c == 1)[0])
+    """
+    if idy is None:
+        idy = idx
+    # else:
+    #     assert len(idx) == len(idy)
+    return A[np.ix_(idx, idy)]
+
+
+def remove_nodes(A, ids):
+    """returns a graph without specified node ids
+
+    Parameters
+    ----------
+    A : ndarray, shape(n, n)
+        Adjacency matrix of the graph.
+    ids : ndarray, shape(i, )
+        Node ids to remove.
+
+    Returns
+    -------
+    B : ndarray, shape(n-len(i), n-len(i))
+        Adjacency matrix of the graph without specified node ``ids``.
+
+    See also
+    --------
+    subgraph: return a subgraph of the specified node ids
+
+    Examples
+    --------
+    >>> A = get_random_graph()
+    >>> print A.shape
+    (30, 30)
+    >>> A_ = remove_nodes(A, [0,3,4])
+    >>> print A_.shape
+    (27, 27)
+    """
+
+    # XXX more efficient with np.delete? -- no
+    # return np.delete(np.delete(A, ids, 0), ids, 1)
+
+    nodes = np.empty(A.shape[0])
+    nodes.fill(True)
+    nodes[ids] = False
+    keep_ids = np.where(nodes)[0]
+    return A[np.ix_(keep_ids, keep_ids)]
+
+
+def make_undirected(A):
+    """converts a directed into an undirected adjacency matrix
+
+    Parameters
+    ----------
+    A : ndarray, shape(n, n)
+        Adjacency matrix of the graph. Unweighted networks only.
+
+    Returns
+    -------
+    UD : ndarray, shape(n, n)
+        Undirected adjacency matrix of the graph.
+
+    Examples
+    --------
+    >>> A = get_random_graph(directed=True)
+    >>> is_directed(A)
+    True
+    >>> UD = make_undirected(A)
+    >>> is_weighted(UD)
+    False
+    """
+    return A + A.T - np.diag(A.diagonal())
+
+
+def remove_self_loops(A, copy=False):
+    """remove self-loops of a graph
+
+    This will set the diagonal of the adjacency matrix to zero
+
+    Parameters
+    ----------
+    A : ndarray, shape(n, n)
+        Adjacency matrix of the graph.
+    copy : boolean
+        If ``copy=False`` the adjacency matrix will be **changed in-place**
+
+    Returns
+    -------
+    A : ndarray, shape(n, n)
+        Adjacency matrix of the graph with zero diagonal.
+
+    Examples
+    --------
+    >>> A = get_graph()
+    >>> print A[0,0]
+    1.0
+    >>> remove_self_loops(A) # A is changed in-place(!)
+    >>> print A[0,0]
+    0.0
+    """
+
+    if copy:
+        # idx = np.diag_indices(A.shape[0], ndim=2) # future numpy
+        idx = np.arange(A.shape[0])
+        idx = (idx,) * 2
+
+        B = A.copy()
+        B[idx] = 0
+        return B
+    else:
+        # much faster
+        fill_diagonal(A, 0.)
+
+
+def number_edges(A, directed=False):
+    """return the number of edges of a graph
+
+    Edges are counted as entries in the adjacency matrix :math:`A` different
+    from zero.
+
+    Parameters
+    ----------
+    A : ndarray, shape(n, n)
+        Adjacency matrix of the graph.
+
+    Returns
+    -------
+    n_edges : integer
+        Number of edges.
+
+    Notes
+    -----
+    For undirected graphs the edge :math:`e_{ij}` and :math:`e_{ji}` are
+    counted only once. For directed graphs they are counted twice. Self-loops
+    (i.e. :math:`e_{ij}`) are also counted.
+
+    Examples
+    --------
+    >>> A = get_graph()
+    >>> print number_edges(A)
+    58
+    """
+
+    n_edges = A[A != 0].size
+    if not directed:
+        # take care of selfloops here
+        diag = np.diag(A)
+        n_edges += diag[diag > 0].size
+        n_edges /= 2
+
+    return n_edges
+
+
+def number_nodes(A):
+    """return the number of nodes of a graph
+
+    Parameters
+    ----------
+    A : ndarray, shape(n, n)
+        Adjacency matrix of the graph.
+
+    Returns
+    -------
+    n_nodes : integer
+        Number of nodes.
+
+    Examples
+    --------
+    >>> A = get_graph()
+    >>> print number_nodes(A)
+    31
+    >>> # which is the same as
+    >>> print A.shape[0]
+    31
+    """
+    return A.shape[0]
+
+
+def laplacian_matrix(A):
+    """returns the Laplacian matrix of A.
+
+    The graph Laplacian is the matrix L = D - A, where A is the adjacency
+    matrix and D is the degree matrix. Weights are irrelevant.
+
+    Parameters
+    ----------
+    A : ndarray, shape(n, n)
+        Adjacency matrix of the graph.
+
+    Returns
+    -------
+    L : ndarray, shape(n, n)
+        Laplacian of A.
+
+    Notes
+    -----
+    This is **not** the normalized Laplacian matrix.
+
+    References
+    ----------
+    .. [1] http://en.wikipedia.org/wiki/Laplacian_matrix
+
+    Examples
+    --------
+    >>> A = karate_club()
+    >>> L = laplacian_matrix(A)
+    """
+
+    _A = np.ceil(np.abs(A))
+    np.fill_diagonal(_A, 0)
+    degree_matrix = np.diag(np.sum(_A, axis=0))
+    laplacian_matrix = degree_matrix - _A
+    return laplacian_matrix
