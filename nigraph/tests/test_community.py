@@ -5,6 +5,6 @@ import nigraph as nig
 
 
 def test_louvain():
-    A = nig.A = nig.get_random_graph(30, directed=False)
-    n2c, extras = nig.louvain(A, weighted=False, return_tree=True)
+    A = nig.get_random_graph(30, directed=False)
+    n2c, extras = nig.louvain(A, weighted=False, return_tree=False)
     npt.assert_equal(A.shape[0], n2c.shape[0])
