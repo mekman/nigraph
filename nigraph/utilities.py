@@ -324,7 +324,7 @@ def graph_type(G):
     >>> graph_type(A)
     'ig'
     """
-    import graph_tool.all as gt
+    # import graph_tool.all as gt
 
     gtype = 'unknown'
     if type(G) is nx.Graph:
@@ -336,8 +336,8 @@ def graph_type(G):
         gtype = 'np'
     elif type(G) is ig.Graph:
         gtype = 'ig'
-    elif type(G) is gt.Graph:
-        gtype = 'gt'
+    # elif type(G) is gt.Graph:
+    #     gtype = 'gt'
     elif type(G) is str:
         # TODO this is not a strong indication for mat!
         gtype = 'mat'
