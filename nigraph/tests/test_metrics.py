@@ -6,5 +6,5 @@ import nigraph as nig
 
 def test_degree():
     A = nig.get_random_graph(30, directed=False)
-    k = nig.degree(A, weighted=False)
+    k = nig.degree(A, directed=False, ignore_self_loops=False)
     npt.assert_equal(A.shape[0], k.shape[0])

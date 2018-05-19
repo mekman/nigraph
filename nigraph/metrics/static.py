@@ -86,7 +86,7 @@ from ..utilities import tril_indices, triu_indices
 from ..utilities import remove_self_loops, graph_type, number_edges, \
     number_nodes, is_directed, laplacian_matrix
 
-# from ..utilities import num_communities, is_overlapping, unique_communities
+from ..utilities import num_communities, is_overlapping, unique_communities
 
 advanced = False
 if advanced:
@@ -2260,15 +2260,15 @@ def controllability(A, directed=True, perc=True):
     is not directed the metric is still computed.
 
     In [1]_ it was shown, that the minimum number of driver nodes needed to
-    maintain full control of the network is determined by the ‘maximum matching’
+    maintain full control of the network is determined by the maximum matching
     in the network, that is, the maximum set of links that do not share start
     or end nodes.
 
     Expanding on this work [2]_ showed that the the number of nodes to gain
     controll over a network can be well approximated without knowledge of the
     full degree distribution, but rather by the fraction of 'souce' and 'sink'
-    nodes (i.e. nodes with zero in-degree, or zero out-degree). The authors show
-    further that networks can be characterized by their control profiles.
+    nodes (i.e. nodes with zero in-degree, or zero out-degree). The authors
+    show further that networks can be characterized by their control profiles.
 
     References
     ----------
@@ -2365,7 +2365,7 @@ def controllability(A, directed=True, perc=True):
     #   if i not in non_d_nodes:
     #       d_nodes.append(i)
 
-    # driver nodes = all unmatched nodes (including those not in the matching!!)
+    # driver nodes = all unmatched nodes (including those not in the matching!)
     # these are ending nodes; - n_nodes, because node_i and node_i+n_nodes are
     # the same node
     matched_nodes = np.unique(edge_list[idx_matching, 1]) - n_nodes
@@ -2483,7 +2483,9 @@ def rich_club_coefficients(ADJ, n_per=0, n_swap=1000, fmt='np'):
             r_rand = nx.rich_club_coefficient(R, normalized=False)
             for j in r.keys():
                 r_norm[j] += r_rand[j]
-                if r_rand[j] > r[j]:  # in van Heuvel: "more extreme", but should be more extreme or equal?!
+                # in van Heuvel: "more extreme", but should be more
+                # extreme or equal?!
+                if r_rand[j] > r[j]:
                     pval[j] += 1
 
         for j in r.keys():
@@ -2587,7 +2589,7 @@ def rich_club_coefficient(A, weighted=False, k_level_max=None):
     >>> rcc, r = rich_club_coefficient(W, weighted=True)
     """
 
-    # unweighted version is tested against the BCT implementation rich_club_bu.m
+    # unweighted version is tested against BCT implementation rich_club_bu.m
     # TODO merge with function "rich_club_coefficients"
 
     if weighted:
@@ -2612,7 +2614,8 @@ def rich_club_coefficient(A, weighted=False, k_level_max=None):
             idx = np.tril_indices_from(A, k=-1)
             W_sorted = np.sort(A[idx])  # ascending order; quicker
 
-            sum_W_strongest = np.sum(W_sorted[-Ek:])  # sum of Ek strongest edges
+            # sum of Ek strongest edges
+            sum_W_strongest = np.sum(W_sorted[-Ek:])
             Rk[k_level] = Wk / float(sum_W_strongest)
 
     else:
@@ -2632,7 +2635,8 @@ def rich_club_coefficient(A, weighted=False, k_level_max=None):
             if nominator > 0:
                 Rk[i] = Ek / nominator  # unweighted rich-club coefficient
 
-    _Rk = -1 * np.ones(k.max())  # Rk for nodes with k > k_level_max get rcc = -1
+    # Rk for nodes with k > k_level_max get rcc = -1
+    _Rk = -1 * np.ones(k.max())
     _Rk[:len(Rk)] = Rk
     rcc = _Rk[k-1]
 
@@ -2930,7 +2934,8 @@ def module_centrality(A, weighted=False, module=None, start_points=None,
             weights = 'weight'  # = g.edge_attributes()
 
         for s in start_points:
-            s_paths = A.get_shortest_paths(s, to=end_points, weights=weights, output="vpath")
+            s_paths = A.get_shortest_paths(s, to=end_points, weights=weights,
+                                           output="vpath")
             for path in s_paths:
                 if len(path) > 2:
                     n_path_p += 1.
@@ -2985,8 +2990,9 @@ def diversity_coefficient(A, partition=None):
     ----------
     .. [1] Fornito, A., Harrison, B. J., Zalesky, A., & Simons, J. S. (2012).
            Competitive and cooperative dynamics of large-scale brain functional
-           networks supporting recollection. Proceedings of the National Academy
-           of Sciences, 109(31), 12788–12793. doi:10.1073/pnas.1204185109
+           networks supporting recollection. Proceedings of the National
+           Academy of Sciences, 109(31), 12788–12793.
+           doi:10.1073/pnas.1204185109
 
     Examples
     --------
@@ -3003,14 +3009,14 @@ def diversity_coefficient(A, partition=None):
     """
 
     # assert partition != None, 'No graph partition specified'
-
     s = A.sum(axis=0)
     h = np.empty(A.shape[0])
     for u in np.unique(partition):
         # idx = np.where(partition != u)[0]
         # id = np.where(partition == u)[0]
         # ADJ = A.copy()
-        # ADJ[np.ix_(idx, idx)] = 0. #XXX not working correctly remove non module weights
+        # XXX not working correctly remove non module weights
+        # ADJ[np.ix_(idx, idx)] = 0.
         # s_u = ADJ.sum(axis=0)
         # p_u = s_u[id] / s[id]
         # h[id] = p_u * np.log(p_u)
@@ -3518,7 +3524,6 @@ def spread_of_infection(A, weighted=False, n_steps=100, initial_infected=None,
                 # select neighbours for infection
                 neighbours = set(np.unique(np.where(A[source, :] != 0)[-1]))
                 neighbours -= infected
-                # print 'All susceptible neighbours reachable via 1 edge: ' + str(neighbours)
 
                 _neighbours = set()
                 for neig in neighbours:
@@ -3565,12 +3570,12 @@ def spread_of_infection(A, weighted=False, n_steps=100, initial_infected=None,
         visit_times = np.zeros((n_iter, n_nodes))
         for iter in range(n_iter):
             if verbose:
-                print ' #iter %s // %s' %( iter + 1, n_iter )
+                print ' #iter %s // %s' % (iter + 1, n_iter)
             visit_time = _run_network()
             visit_times[iter] = visit_time
 
         if verbose:
-            print '--time', (time.time()-t0)/60
+            print '--time', (time.time()-t0)/60.
 
         return np.mean(visit_times, axis=0), visit_times
 
@@ -3578,15 +3583,16 @@ def spread_of_infection(A, weighted=False, n_steps=100, initial_infected=None,
         visit_times = np.zeros(n_nodes)
         for iter in range(n_iter):
             if verbose:
-                print ' #iter %s // %s' %( iter + 1, n_iter )
+                print ' #iter %s // %s' % (iter + 1, n_iter)
             visit_time = _run_network()
             if visit_time[visit_time < 0].size > 0:
-                print 'warning: not all nodes were visited, consider increasing n_steps'
+                print 'warning: not all nodes were visited, \
+                       consider increasing n_steps'
             visit_times += visit_time
 
         visit_times /= float(n_iter)
 
         if verbose:
-            print '--time', (time.time()-t0)/60
+            print '--time', (time.time()-t0)/60.
 
         return visit_times

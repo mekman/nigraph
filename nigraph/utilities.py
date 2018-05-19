@@ -914,3 +914,109 @@ def laplacian_matrix(A):
     degree_matrix = np.diag(np.sum(_A, axis=0))
     laplacian_matrix = degree_matrix - _A
     return laplacian_matrix
+
+
+def is_overlapping(node2comm):
+    """Determine whether a graph partition contains overlapping communities.
+
+    Parameters
+    ----------
+    node2comm : list of set of nonnegative integers **or** ndarray
+        Community structure. A mapping from node IDs [0..NN-1] to community
+        IDs [0..NC-1].
+
+    Examples
+    --------
+    >>> is_overlapping([set([0,1]), set([1,2])])
+    True
+    >>> is_overlapping(np.array([0, 1, 1]))
+    False
+    """
+    if type(node2comm).__name__ in ['ndarray']:
+        # numpy array cannot contain overlapping communities
+        return False
+    else:
+        if len(node2comm) > 0 and type(node2comm[0]) != set:
+            # this is just a list of numbers (should be equiv to np array)
+            return False
+        for comm_set in node2comm:
+            if len(comm_set) > 1:
+                return True
+        return False
+
+
+def num_communities(node2comm):
+    """return the number of unique communities of a given node2comm vector.
+
+    Parameters
+    ----------
+    node2comm : list of set of nonnegative integers **or** numpy array
+        Community structure. A mapping from node IDs [0..NN-1] to community
+        IDs [0..NC-1].
+
+    Returns
+    -------
+    nc : integer
+         Number of communities.
+
+    See Also
+    --------
+    num_communities_total: Total number of communities
+
+    Examples
+    --------
+    >>> # non-overlapping community structure
+    >>> num_communities(np.array([0, 0, 0]))
+    1
+    >>> # non-overlapping community structure with node 0 not being part of
+    >>> # any community
+    >>> num_communities(np.array([-1, 0, 0]))
+    1
+    >>> # overlapping community structure
+    >>> num_communities([set([0,1]), set([1,2])])
+    3
+    >>> # non-overlapping community structure with node 1 not being part of
+    >>> # any community
+    >>> num_communities([set([0,1]), set()])
+    2
+    """
+    return len(unique_communities(node2comm))
+
+
+def unique_communities(node2comm):
+    """Returns a set of unique community IDs from the given node2community
+    vector.
+
+    Parameters
+    ----------
+    node2comm : list of set of nonnegative integers **or** ndarray
+        Community structure. A mapping from node IDs [0..NN-1] to community
+        IDs [0..NC-1].
+
+    Returns
+    -------
+    unique : set
+        Set of unique community IDs.
+
+    Examples
+    --------
+    >>> unique_communities([set([0,1]), set([1,2])])
+    set([0, 1, 2])
+    >>> unique_communities(np.array([-1, 1, 0]))
+    set([0, 1])
+    """
+    if len(node2comm) > 0 and type(node2comm[0]) != set:
+        # this is just a list of numbers (should be equiv to np array)
+        node2comm = np.array(node2comm)
+
+    if type(node2comm).__name__ == 'ndarray':
+        unique = np.unique(node2comm)
+        if np.size(unique) > 0 and unique[0] == -1:
+            unique = unique[1:]
+        return set(unique.tolist())
+
+    else:
+        unique = set()
+        for c in node2comm:
+            unique |= c
+        return unique
