@@ -14,27 +14,29 @@ Features include:
 
 This code snippet shows how to construct a network graph from a resting-state fMRI time-series and calculate the weighted, local betweenness_centrality:
 
-
 ```shell
 $ python
 ```
 ```python
 >>> import nigraph as nig
->>> timeseries = nig.load_mri('rest.nii.gz', 'brain_mask.nii.gz')
->>> adjacency = nig.adj_static(timeseries)
->>> adjacency_thr = nig.thresholding_abs(adjacency, thr=0.3)
->>> bc = nig.betweenness_centrality(adjacency_thr)
+>>> timeseries = nig.load_mri('func.nii.gz', 'brain_mask.nii.gz')
+>>> A = nig.adj_static(timeseries)  # adjacency matrix
+>>> A_thr = nig.thresholding_abs(adjacency, thr=0.3)  # threshold matrix
+>>> bc = nig.betweenness_centrality(adjacency_thr)  # calculate metric
+>>> nig.save_mri(bc, 'brain_mask.nii.gz', 'bc.nii.gz')  # save results
 ```
 
 ### Installation
 
-Currently this is only available through GitHub. **Nigraph** will run under Linux and Mac OS X, but not under Windows.
+Currently this is only available through GitHub. **Nigraph** will run under Linux and Mac OS X, but not under Windows<sup>1</sup>.
 
     pip install git+https://github.com/mekman/nigraph.git --upgrade
 
+<sup>1</sup> it might work if you have the MSVC compiler installed
+
 ### Citation
 
-If you use the **Nigraph** for connectivity-based decoding please cite::
+If you use the **Nigraph** for connectivity-based decoding please cite:
 
     @article{Ekman09102012,
     author = {Ekman, Matthias and Derrfuss, Jan and Tittgemeyer, Marc and Fiebach, Christian J.},
@@ -48,6 +50,8 @@ If you use the **Nigraph** for connectivity-based decoding please cite::
     eprint = {http://www.pnas.org/content/109/41/16714.full.pdf+html},
     journal = {Proceedings of the National Academy of Sciences}
     }
+
+This repository is based on [shablona](https://github.com/uwescience/shablona).
 
 ### License
 Copyright (C) 2011-2018 Nigraph Developers

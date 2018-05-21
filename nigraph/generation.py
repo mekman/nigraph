@@ -237,8 +237,8 @@ def adj_static(ts, measure='corr', pval=False, TR=2, fq_l=None, fq_u=None,
     #                 ADJ[i, j], P[i, j] = kendalltau(data[i,:], data[j,:])
 
         ADJ = ADJ + ADJ.T
-        P = P + P.T
-        fill_diagonal(P, 1)
+        # P = P + P.T
+        # fill_diagonal(P, 1)
 
     elif measure == 'rho':
 
@@ -258,7 +258,8 @@ def adj_static(ts, measure='corr', pval=False, TR=2, fq_l=None, fq_u=None,
         fill_diagonal(P, 1)
 
     elif measure == 'coh':
-        from nitime import TimeSeries, CoherenceAnalyzer
+        from nitime import TimeSeries
+        from nitime.analysis.coherence import CoherenceAnalyzer
         T = TimeSeries(data, sampling_interval=TR)
         # Initialize the coherence analyzer
         C = CoherenceAnalyzer(T)
