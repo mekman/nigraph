@@ -2,6 +2,7 @@ numpy
 scipy
 matplotlib
 nibabel
+nitime
 scikit-learn
 networkx
 python-igraph
