@@ -40,7 +40,6 @@
 
     efficiency_global
     efficiency_local
-    efficiency_cost
     avg_shortest_path_length
     wiring_costs
     synchronizability
@@ -97,7 +96,7 @@ __all__ = ['degree', 'betweenness_centrality', 'dist_matrix_topological',
            'node_importance', 'size_giant_component', 'synchronizability',
            'adjacency_spectrum',
            'algebraic_connectivity', 'efficiency_global', 'efficiency_local',
-           'efficiency_cost', 'efficiency_nodal', 'small_world_scalar',
+           'efficiency_nodal', 'small_world_scalar',
            'small_world_scalar_faster',
            'controllability', 'rich_club_coefficients',
            'rich_club_coefficient', 'vulnerability',
@@ -1310,81 +1309,6 @@ def efficiency_global(A, weighted=False, directed=False, auto_inv=True):
     return avg
 
 
-def efficiency_cost(A, weighted=False, eg=None, auto_inv=True):
-    """cost efficiency of the graph
-
-    .. math::
-
-        E_{cost} = E_{global} - K
-
-    where :math:`K` are the wiring costs of the network.
-
-    #XXX: costs for weighted networks are calculated differently cf.
-
-    Parameters
-    ----------
-    A : ndarray, shape(n, n)
-        Adjacency matrix of the graph.
-    weighted : boolean
-        The adjacency matrix is weighted (default=False).
-    eg : ndarray, shape(n, ), optional
-        In case the global efficiency was already calculated, it can be provided
-        to speed-up the calculation.
-    auto_inv : boolean
-        Auto inverse the adjacency matrix if the network is weighted
-        (default=True).
-
-    Returns
-    -------
-    E_cost : float
-        Cost efficiency.
-
-    Notes
-    -----
-    Economical networks have a cost efficiency > 0.
-
-    See also
-    --------
-    efficiency_nodal: efficiency nodal for each node
-    efficiency_local: efficiency local for the network
-    efficiency_global: efficiency global for the network
-
-    References
-    ----------
-    .. [1] Achard & Bullmore (2007). Efficiency and cost of economical brain
-           functional networks. PLoS computational biology, 3(2), e17.
-           doi:10.1371/journal.pcbi.0030017
-
-    Examples
-    --------
-    >>> from nigraph import get_random_graph
-    >>> A = get_random_graph()
-    >>> eg = efficiency_global(A)
-    >>> print eg
-    0.27781103315585975
-    >>> print efficiency_cost(A)
-    0.208845515914
-
-    >>> # which is the same as
-    >>> wiring_costs(A)
-    0.068965517241379309
-    >>> efficiency_global(A) - wiring_costs(A)
-    0.208845515914
-    """
-
-    if weighted:
-        if auto_inv:
-            A = inverse_adj(A, method='inv')
-
-    # save CPU power if E_glob was previously calculated
-    if eg is None:
-        eg = efficiency_global(A, weighted=weighted)
-
-    K = wiring_costs(A)
-    E_cost = eg - K
-    return E_cost
-
-
 def efficiency_local(A, weighted=False, auto_inv=True):
     r"""local efficiency of a graph
 
@@ -1424,7 +1348,6 @@ def efficiency_local(A, weighted=False, auto_inv=True):
     See also
     --------
     efficiency_nodal: efficiency nodal for each node
-    efficiency_cost: efficiency cost for the network
     efficiency_global: efficiency global for the network
 
     References
@@ -1526,7 +1449,6 @@ def efficiency_nodal(A, weighted=False, auto_inv=True):
     See Also
     --------
     efficiency_local: efficiency local for the network
-    efficiency_cost: efficiency cost for the network
     efficiency_global: efficiency global for the network
 
     References
@@ -2774,8 +2696,7 @@ def subgraph_centrality(A):
 
     # XXX untested; transpose A?; check against BCT impl.
 
-    # TODO: add to warehouse
-    # TODO convert to matrix better performance?
+    # TODO convert to scipy matrix for better performance?
     # TODO Zuo mentions a modification for large networks that otherwise might
     # give problems with machine accuracy
     eigenvalue, eigenvector = np.linalg.eigh(A)

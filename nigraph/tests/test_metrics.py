@@ -131,10 +131,28 @@ def test_pagerank():
     npt.assert_equal(A.shape[0], m.shape[0])
 
 
-def test_module_centrality():
+def test_resolvent_centrality():
     A = nig.get_random_graph(30, weighted=False)
-    m = nig.module_centrality(A, weighted=True, module=np.arange(10))
-    npt.assert_equal(1, np.asarray(m).size)
+    m = nig.resolvent_centrality(A)
+    npt.assert_equal(A.shape[0], m.shape[0])
+
+
+def test_subgraph_centrality():
+    A = nig.get_random_graph(30, weighted=False)
+    m = nig.subgraph_centrality(A)
+    npt.assert_equal(A.shape[0], m.shape[0])
+
+
+def test_spread_of_infection():
+    A = nig.get_random_graph(30, weighted=False)
+    m = nig.spread_of_infection(A)
+    npt.assert_equal(A.shape[0], m.shape[0])
+
+
+def test_google_matrix():
+    A = nig.get_random_graph(30, weighted=False)
+    m = nig.google_matrix(A)
+    npt.assert_equal(A.shape, m.shape)
 
 
 # def test_controllability():
@@ -143,14 +161,11 @@ def test_module_centrality():
 #     npt.assert_equal(A.shape[0], m.shape[0])
 
 
-#            'node_importance', 'size_giant_component', 'synchronizability',
-#            'adjacency_spectrum',
-#            'algebraic_connectivity', '', '',
-#            'efficiency_cost', '', 'small_world_scalar',
-#            'small_world_scalar_faster',
-#            'controllability', 'rich_club_coefficients',
-#            'rich_club_coefficient', 'vulnerability',
-#            'module_centrality',
-#            'diversity_coefficient', '',
-#            'subgraph_centrality', 'resolvent_centrality', 'google_matrix',
-#            '', 'spread_of_infection']
+# 'node_importance', 'size_giant_component', 'synchronizability',
+# 'adjacency_spectrum',
+# 'algebraic_connectivity',
+# 'small_world_scalar',
+# 'small_world_scalar_faster',
+# '', 'rich_club_coefficients',
+# 'rich_club_coefficient', 'vulnerability',
+# 'diversity_coefficient', '',
