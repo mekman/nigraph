@@ -27,7 +27,6 @@
     driftness
     node_importance
     adjacency_spectrum
-    dynamical_importance
     rich_club_coefficients
     rich_club_coefficient
     vulnerability
@@ -48,7 +47,6 @@
     algebraic_connectivity
     small_world_scalar
     small_world_scalar_faster
-    cumulative_degree_distribution
     controllability
 
 Graph metrics that take the **community structure** of a graph into account.
@@ -58,10 +56,6 @@ Graph metrics that take the **community structure** of a graph into account.
 
    within_module_degree_z_score
    participation_coefficient
-   between_module_closeness
-   between_module_closeness_centrality
-   between_module_metric
-   within_module_metric
    module_centrality
    diversity_coefficient
    number_k_max
@@ -96,19 +90,17 @@ if advanced:
 # TODO this module needs a re-ordering of the functions
 __all__ = ['degree', 'betweenness_centrality', 'dist_matrix_topological',
            'avg_shortest_path_length', 'absorption', 'driftness',
-           'local_characteristic_path_length', 'between_module_closeness',
-           'between_module_closeness_centrality', 'between_module_metric',
+           'local_characteristic_path_length',
            'within_module_metric', 'nodal_average_shortest_path_length',
            'within_module_degree_z_score', 'participation_coefficient',
-           'cumulative_degree_distribution', 'number_k_max', 'wiring_costs',
+           'number_k_max', 'wiring_costs',
            'node_importance', 'size_giant_component', 'synchronizability',
-           'adjacency_spectrum', 'dynamical_importance',
+           'adjacency_spectrum',
            'algebraic_connectivity', 'efficiency_global', 'efficiency_local',
            'efficiency_cost', 'efficiency_nodal', 'small_world_scalar',
            'small_world_scalar_faster',
            'controllability', 'rich_club_coefficients',
            'rich_club_coefficient', 'vulnerability',
-           'module_centrality',
            'diversity_coefficient', 'eigenvector_centrality',
            'subgraph_centrality', 'resolvent_centrality', 'google_matrix',
            'pagerank', 'spread_of_infection']
@@ -665,352 +657,6 @@ def driftness(A, AB=None, D=None):
     return W
 
 
-def between_module_closeness(A, n2c, weighted=False, auto_inv=True):
-    """Closeness centrality between graph modules
-
-    1/average shortest path from node i in module 1 to all other nodes in
-    module 2 and vice versa.
-
-    # TODO math
-    # makes only sense with two modules!!!
-
-    This can be used to calculate **core-closeness** if one of the modules is
-    the network core.
-
-    Parameters
-    ----------
-    A : ndarray, shape(n, n)
-        Adjacency matrix of the graph.
-    weighted : boolean
-        The adjacency matrix is weighted.
-    n2c : ndarray, shape(n, )
-        Community structure. A mapping from node IDs [0..n-1] to community
-        IDs [0..nc-1].
-    auto_inv : boolean
-        Auto inverse the adjacency matrix if the network is weighted
-        (default=True).
-
-    Returns
-    -------
-    value : ndarray, shape(n, )
-        Closeness centrality from `node[i]` in module `M` to all other nodes
-        not in module `M`.
-
-    See Also
-    --------
-    within_module_metric
-
-    Notes
-    -----
-    Similar to closeness centrality, but instead of sum(1/dist) it returns
-    1/(avg dist). Unconnected nodes (dist = 0/inf) are ignored.
-
-    Examples
-    --------
-    >>> from nigraph import get_random_graph, between_module_closeness
-    >>> A = get_random_graph()
-    >>> n2c = np.zeros(A.shape[0])
-    >>> n2c[0:5] = 1
-    >>> v = between_module_closeness(A, n2c, weighted=False, auto_inv=True)
-    """
-
-    D = dist_matrix_topological(A, weighted=weighted, directed=False,
-                                norm=False, auto_inv=auto_inv)
-    n_nodes = A.shape[0]
-    bmcc = np.zeros(n_nodes)
-
-    # XXX faster?!
-    # uni_communities = np.unique(n2c)
-    # n_communities = uni_communities.size
-    # for i in range(n_communities):
-    #     idx_i = np.where(n2c == uni_communities[i])[0]
-    #     for j in range(n_communities):
-    #         if i != j:
-    #             idx_j = np.where(n2c == uni_communities[j])[0]
-    #             C_dist = D[np.ix_(idx_i, idx_j)]
-    #             bmcc[idx_i] = 1. / C_dist.sum(axis=1) # sum here
-
-    uni_communities = np.unique(n2c)
-    for c in range(uni_communities.size):
-        start_nodes = np.where(n2c == uni_communities[c])[0]
-        end_nodes = np.where(n2c != uni_communities[c])[0]
-        for i in start_nodes:
-            # calc distance from node i to all other nodes in the other module
-            d_i = D[i, end_nodes]
-            d_ = d_i[d_i > 0].mean()  # XXX sum vs mean?
-            if d_ > 0:
-                # this is not really closeness sum(1/d) but 1/sum(d)!
-                d_ = d_ ** -1
-            bmcc[i] = d_
-
-    return np.nan_to_num(bmcc)
-
-
-# def core_closeness(A, n2c, weighted=False, auto_inv=True):
-#     """Core closeness
-#
-#     # TODO math
-#
-#     Parameters
-#     ----------
-#     A : ndarray, shape(n, n)
-#         Adjacency matrix of the graph
-#     weighted : boolean
-#         The adjacency matrix is weighted
-#     n2c : ndarray, shape(n, )
-#         Community structure. A mapping from node IDs [0..n-1] to community
-#         IDs [0..nc-1].
-#     auto_inv : boolean
-#         Auto inverse the adjacency matrix if the network is weighted
-#         (default=True).
-#
-#     Returns
-#     -------
-#     value : ndarray, shape(n, )
-#         Core closeness
-#
-#     See Also
-#     --------
-#     within_module_metric
-#
-#     Notes
-#     -----
-#     Similar to closeness centrality, but instead of sum(1/dist) it returns
-#     1/(avg dist). Unconnected nodes (dist = 0/inf) are ignored.
-#
-#     Examples
-#     --------
-#     >>> A = get_random_graph()
-#     >>> n2c = np.zeros(A.shape[0])
-#     >>> n2c[0:5] = 1
-#     >>> core_closeness(A, n2c, weighted=False, auto_inv=True)
-#     """
-#
-#     D = dist_matrix_topological(A, weighted=weighted, directed=False, norm=False, auto_inv=auto_inv)
-#     n_nodes = A.shape[0]
-#     bmcc = np.zeros(n_nodes)
-#
-#     core = n2c == 1.
-#     peri = n2c == 0.
-#     C_dist = D[np.ix_(peri, core)]
-#     d_ = C_dist.sum(axis=1)
-#     bmcc[peri] = 1. / d_
-#
-#     return bmcc
-
-
-def between_module_closeness_centrality(ADJ, weighted=False, m1=None, m2=None,
-                                        auto_inv=True):
-    """Closeness centrality between graph modules
-
-    average shortest path from node i in module 1 to all other nodes in module
-    2 and vice versa.
-
-    # TODO weighted is not impl yet
-    # TODO seems more efficient to calc whole dist matrix
-    # TODO: extend to more than two modules
-
-    Parameters
-    ----------
-    ADJ : ndarray, shape(n, n)
-        Adjacency matrix of the graph
-    weighted : boolean
-        The adjacency matrix is weighted
-    m1 : ndarray
-        Module 1. Node ids that belong to module 1. Counting from zero.
-    m2 : ndarray
-        Module 2. Node ids that belong to module 1. Counting from zero.
-    auto_inv : boolean
-        Auto inverse the adjacency matrix if the network is weighted
-        (default=True).
-
-    Returns
-    -------
-    v : ndarray, shape(n, )
-        Closeness centrality between modules.
-
-    See Also
-    --------
-    within_module_metric
-
-    Notes
-    -----
-    Similar to closeness centrality, returns 1/dist and if no connected = 0
-
-    Examples
-    --------
-    >>> #TODO
-    """
-
-    if weighted:
-        if auto_inv:
-            ADJ = inverse_adj(ADJ, method='inv')
-
-    G = nx.Graph(ADJ)
-    closeness_centrality = np.zeros(ADJ.shape[0])
-
-    # TODO seems much more efficient
-    # for s_node in m1:
-    #     for t_node in m2:
-    #         try:
-    #             dist = nx.shortest_path_length(G, source=s_node, target=t_node) #, weight=None)
-    #             sps += 1./dist
-    #         except:
-    #             sps += 0
-
-    for n in m1:
-        # get all sp's
-        if weighted:
-            sps = nx.single_source_dijkstra_path(G, n, cutoff=None,
-                                                 weight='weight').values()
-        else:
-            sps = nx.single_source_shortest_path(G, n).values()
-
-        path_list = []
-
-        # exclude selfloops
-        for path in sps:
-            if len(path) > 1:
-                path_list.append(path)
-
-        path_list_ = []
-
-        for path in path_list:
-            if path[-1] in m2:  # check if ends in module1
-                path_list_.append(path)
-
-        path_length = 0.
-        h_mean = 0.
-        for path in path_list_:
-            path_length = (len(path)) - 1.
-            h_mean += 1. / float(path_length)
-
-        closeness_centrality[n] = h_mean / m2.size  # h_mean/path_counter
-
-    for n in m2:
-        # get all sp's
-        sps = nx.single_source_shortest_path(G, n).values()
-
-        path_list = []
-
-        # exclude selfloops
-        for path in sps:
-            if len(path) > 1:
-                path_list.append(path)
-
-        path_list_ = []
-
-        for path in path_list:
-            if path[-1] in m1:  # check if ends in m1
-                path_list_.append(path)
-
-        path_length = 0.
-        h_mean = 0.
-        for path in path_list_:
-            path_length = (len(path)) - 1.
-            h_mean += 1. / float(path_length)
-
-        closeness_centrality[n] = h_mean / m1.size  # h_mean/path_counter
-
-    return closeness_centrality
-
-
-def between_module_metric(A, weighted=False, partition=None, metric='degree'):
-    """average graph metric between modules
-
-    #TODO not impl. yet
-    #TODO replace between_module_centrality and between_module_closeness_centrality by this function
-
-    Parameters
-    ----------
-    A : ndarray, shape(n, n)
-        Adjacency matrix of the graph
-    weighted : boolean
-        The adjacency matrix is weighted
-    partition : ndarray, shape(n, )
-        Partition vector of the graph into non-overlapping modules
-    metric : string
-        local graph metric to calculate
-
-    See Also
-    --------
-    within_module_metric: local graph metric for nodes within their modules
-
-    Examples
-    --------
-    >>> #TODO
-
-    """
-
-    if graph_type(A) == 'np':
-        G = nx.Graph(A)
-    else:
-        G = A.copy()
-    return G
-
-
-def within_module_metric(A, weighted=False, partition=None, metric='degree'):
-    """local graph metric for nodes within their modules
-
-    Modules are regarded as isolated subgraphs for which the local metrics is
-    calculated. This allows to investigate differences in local characteristics
-    between the whole graph level and within modules.
-
-    Parameters
-    ----------
-    A : ndarray, shape(n, n)
-        Adjacency matrix of the graph.
-    weighted : boolean
-        The adjacency matrix is weighted (default=False).
-    partition : ndarray, shape(n, )
-        Partition vector of the graph into non-overlapping modules.
-    metric : string
-        local graph metric to calculate #TODO: hard-coded
-
-    Returns
-    -------
-    v : ndarray, shape(n, )
-        local graph metric for nodes within their modules.
-
-    See Also
-    ---------
-    between_module_metric: average graph metric between modules
-
-    Examples
-    --------
-    >>> from nigraph import karate_club, leading_eigenvector, within_module_metric
-    >>> A = karate_club()
-    >>> n2c, _ = leading_eigenvector(A) # find a graph partition
-    >>> w = within_module_metric(A, weighted=False, partition=n2c)
-    """
-
-    # if graph_type(A) == 'np':
-    #     G = nx.Graph(A)
-    # else:
-    #     G = A.copy()
-    #
-    # #TODO pure pythin impl.
-    # res = np.zeros(len(G))
-    # for m in np.unique(partition):
-    #     # create subgraph
-    #     non_node_ids = np.where(partition != m)[0]
-    #     node_ids = np.where(partition == m)[0]
-    #     G_module = G.copy()
-    #     G_module.remove_nodes_from(non_node_ids)
-    #     # calc local metric in subgraph
-    #     # M = metrics_local(np.asarray(nx.to_numpy_matrix(G)), metric=metric, weighted=weighted, tool='nx')
-    #     M = np.asarray(G_module.degree().values(), dtype=np.float64)
-    #     res[node_ids] = M
-
-    # ~50% faster
-    res = np.zeros(A.shape[0])
-    for m in np.unique(partition):
-        node_ids = np.where(partition == m)[0]
-        res[node_ids] = degree(subgraph(A, node_ids))
-
-    return res
-
-
 def nodal_average_shortest_path_length(A, weighted=False, auto_inv=True):
     """average shortest path lenth from node i to all other nodes in the network
 
@@ -1107,10 +753,9 @@ def within_module_degree_z_score(A, partition=None):
 
     Examples
     --------
-    >>> from nigraph import karate_club, leading_eigenvector, within_module_degree_z_score
-    >>> A = karate_club()
-    >>> n2c, _ = leading_eigenvector(A) # find a graph partition
-    >>> z = within_module_degree_z_score(A, partition=n2c)
+    >>> A = nig.karate_club()
+    >>> n2c, _ = nig.leading_eigenvector(A)  # find a graph partition
+    >>> z = nig.within_module_degree_z_score(A, partition=n2c)
     """
 
     # TODO if A is weighted the metric will always return the weighted version
@@ -1206,18 +851,18 @@ def participation_coefficient(A, partition=None, theta=None):
         t = 1. / np.sum(np.abs(theta), -1)
         theta = theta * t[:, np.newaxis]
 
-    for m in range(n_partitions):
-        # select subgraph containing only nodes in the current module
-        idx = []
-        for i in range(n_nodes):
-            for j in partition[i]:
-                if j == unique_partitions[m]:
-                    idx.append(ar[i])
+        for m in range(n_partitions):
+            # select subgraph containing only nodes in the current module
+            idx = []
+            for i in range(n_nodes):
+                for j in partition[i]:
+                    if j == unique_partitions[m]:
+                        idx.append(ar[i])
 
-        SG = subgraph(A, idx, idy=None)
-        # degree k in subgraph
-        ki_mi = np.sum(SG, axis=-1)
-        res[idx] += np.nan_to_num(ki_mi / k_i[idx]) ** 2 * theta[idx, m]
+            SG = subgraph(A, idx, idy=None)
+            # degree k in subgraph
+            ki_mi = np.sum(SG, axis=-1)
+            res[idx] += np.nan_to_num(ki_mi / k_i[idx]) ** 2 * theta[idx, m]
 
     else:
         # non-overlapping communities
@@ -1229,41 +874,6 @@ def participation_coefficient(A, partition=None, theta=None):
             res[partition == m] = np.nan_to_num(ki_mi / k_i[idx]) ** 2
 
     return np.ones(n_nodes) - res
-
-
-def cumulative_degree_distribution(A):
-    """cumulative degree distribution of a binary graph
-
-    Parameters
-    ----------
-    A : ndarray, shape(n, n)
-        Adjacency matrix of the graph.
-
-    Returns
-    --------
-    value : ndarray, shape(k, 2)
-        degree x cumulative Pk values.
-
-    Examples
-    --------
-    >>> from nigraph import cat_cortex, cumulative_degree_distribution
-    >>> A = cat_cortex()
-    >>> res = cumulative_degree_distribution(A)
-    >>> #plt.loglog(res[0],res[1]) # plot as log-log
-    """
-
-    k = np.sum(A, -1)
-    k = np.sort(k)[::-1]  # sort in decending order
-
-    n_degrees = len(k)
-    rank = np.arange(n_degrees) + 1.
-
-    pk = rank / n_degrees
-
-    res = np.zeros((n_degrees, 2))
-    res[:, 0] = k
-    res[:, 1] = pk
-    return res
 
 
 def number_k_max(A, perc=False):
@@ -1623,60 +1233,6 @@ def adjacency_spectrum(A):
     >>> s = adjacency_spectrum(A)
     """
     return np.linalg.eigvals(A)
-
-
-def dynamical_importance(A):
-    r"""returns dynamical importance of the graph nodes
-
-    The largest eigenvalue of the adjacency matrix of networks is a key quantity
-    determining several important dynamical processes on complex networks. The
-    dynamical importance of network nodes is quantified using their effect on
-    the *largest eigenvalue* by removing a particular node and calculating the
-    difference with the original largest eigenvalue.
-
-    Parameters
-    ----------
-    A : ndarray, shape(n, n)
-        Adjacency matrix of the graph (weighted or unweighted).
-
-    Returns
-    -------
-    v : ndarray, shape(n, )
-        Dynamical importance values.
-
-    See Also
-    --------
-    node_importance: generalized funtion for obtaining node importance by
-        removing node and recalculating a specific metric.
-
-    References
-    ----------
-    .. [1] Restrepo, J. G., Ott, E., & Hunt, B. R. (2006). Characterizing the
-           dynamical importance of network nodes and links. Physical review
-           letters, 97(9), 094102.
-
-    Examples
-    --------
-    >>> from nigraph import karate_club, dynamical_importance
-    >>> A = karate_club()
-    >>> v = dynamical_importance(A)
-    """
-
-    n_nodes = A.shape[0]
-
-    # spectrum of the original graph
-    lambda0 = np.linalg.eigvals(A)[0]
-
-    # calculate impact on removing node (impact = importance)
-    delta = np.empty(n_nodes)
-    for i in xrange(n_nodes):
-        A_ = A.copy()
-        A_[i, :] = 0
-        A_[:, i] = 0
-        delta[i] = lambda0 - np.linalg.eigvals(A_)[0]
-
-    # normalization
-    return delta / lambda0
 
 
 def efficiency_global(A, weighted=False, directed=False, auto_inv=True):
@@ -2272,8 +1828,8 @@ def controllability(A, directed=True, perc=True):
 
     References
     ----------
-    .. [1] Liu, Y.-Y., Slotine, J.-J., & Barabási, A.-L. (2011). Controllability
-           of complex networks. Nature, 473(7346), 167–173.
+    .. [1] Liu, Y.-Y., Slotine, J.-J., & Barabási, A.-L. (2011).
+           Controllability of complex networks. Nature, 473(7346), 167–173.
            doi:10.1038/nature10011
     .. [2] Ruths, J., & Ruths, D. (2014). Control Profiles of Complex Networks.
            Science (New York, NY), 343(6177), 1373–1376.
@@ -2311,7 +1867,7 @@ def controllability(A, directed=True, perc=True):
     # - ordinary (??? don't get that definition)
     # this can be achieved using the attack.edge_importance function
 
-    # create augmented adj (=bipartite representation with outnodes and in-nodes
+    # create augmented adj (=bipartite representation with outnodes and innodes
     # on different layers)
     n_nodes = A.shape[0]
 
@@ -3296,7 +2852,7 @@ def resolvent_centrality(A):
     return np.dot(eigenvector[:, 0:20]**2, (n_nodes - 1./(n_nodes-1-eigenvalue[0:20])))
 
 
-def pagerank(A, alpha=0.85, personalization=None, impl='numpy'):
+def pagerank(A, alpha=0.85, personalization=None):
     """PageRank centrality (PC) of the nodes in the graph
 
     PageRank(TM) computes a ranking of the nodes in the network A based on the
@@ -3312,8 +2868,6 @@ def pagerank(A, alpha=0.85, personalization=None, impl='numpy'):
     personalization : ndarray, shape(n, )
         The "personalization vector" consisting of a nonzero personalization
         value for each node.
-    impl : string ['numpy'|'scipy']
-        Implementation to use. Only ``numpy`` currently supported.
 
     Returns
     -------
