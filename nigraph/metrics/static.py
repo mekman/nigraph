@@ -2414,8 +2414,7 @@ def module_centrality(A, weighted=False, module=None, start_points=None,
     >>> from nigraph import get_graph
     >>> A = get_graph(weighted=True)
     >>> m=np.arange(20)
-    >>> s=np.arange(11)+20
-    >>> print module_centrality(A, weighted=True, module=m, start_points=None, end_points=None, auto_inv=True)
+    >>> print module_centrality(A, weighted=True, module=m)
     0.47058823529411764
     """
 

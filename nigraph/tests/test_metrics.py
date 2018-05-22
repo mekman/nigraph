@@ -113,9 +113,15 @@ def test_efficiency_local():
     npt.assert_equal(1, np.asarray(m).size)
 
 
+def test_efficiency_nodal():
+    A = nig.get_random_graph(30, weighted=False)
+    m = nig.efficiency_nodal(A)
+    npt.assert_equal(A.shape[0], m.shape[0])
+
+
 def test_eigenvector_centrality():
     A = nig.get_random_graph(30)
-    m = nig.eigenvector_centrality(A, weighted=False)
+    m = nig.eigenvector_centrality(A)
     npt.assert_equal(A.shape[0], m.shape[0])
 
 
@@ -125,23 +131,22 @@ def test_pagerank():
     npt.assert_equal(A.shape[0], m.shape[0])
 
 
+def test_module_centrality():
+    A = nig.get_random_graph(30, weighted=False)
+    m = nig.module_centrality(A, weighted=True, module=np.arange(10))
+    npt.assert_equal(1, np.asarray(m).size)
+
+
 # def test_controllability():
 #     A = nig.get_random_graph(30, directed=True)
 #     m = nig.controllability(A)
 #     npt.assert_equal(A.shape[0], m.shape[0])
 
 
-# ', 'dist_matrix_topological',
-#            '', '', '',
-#            '', '',
-#            '', '',
-#            'within_module_metric', '',
-#
-#            '', '',
 #            'node_importance', 'size_giant_component', 'synchronizability',
 #            'adjacency_spectrum',
 #            'algebraic_connectivity', '', '',
-#            'efficiency_cost', 'efficiency_nodal', 'small_world_scalar',
+#            'efficiency_cost', '', 'small_world_scalar',
 #            'small_world_scalar_faster',
 #            'controllability', 'rich_club_coefficients',
 #            'rich_club_coefficient', 'vulnerability',
