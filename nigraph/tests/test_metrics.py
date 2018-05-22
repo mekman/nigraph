@@ -84,42 +84,38 @@ def test_driftness():
 def test_number_k_max():
     A = nig.get_random_graph(30, weighted=False)
     m = nig.number_k_max(A)
-    npt.assert_equal(A.shape[0], m.shape[0])
+    npt.assert_equal(1, np.asarray(m).size)
 
 
 def test_wiring_costs():
     A = nig.get_random_graph(30, weighted=False)
     m = nig.wiring_costs(A)
-    npt.assert_equal(1, len(m))
+    npt.assert_equal(1, np.asarray(m).size)
 
 
 def test_efficiency_global():
     A = nig.get_random_graph(30, weighted=False)
     m = nig.efficiency_global(A, weighted=False)
-    npt.assert_equal(A.shape[0], m.shape[0])
+    npt.assert_equal(1, np.asarray(m).size)
 
     A = nig.get_random_graph(30, weighted=True)
     m = nig.efficiency_global(A, weighted=True)
-    npt.assert_equal(A.shape[0], m.shape[0])
+    npt.assert_equal(1, np.asarray(m).size)
 
 
 def test_efficiency_local():
     A = nig.get_random_graph(30, weighted=False)
     m = nig.efficiency_local(A, weighted=False)
-    npt.assert_equal(A.shape[0], m.shape[0])
+    npt.assert_equal(1, np.asarray(m).size)
 
     A = nig.get_random_graph(30, weighted=True)
     m = nig.efficiency_local(A, weighted=True)
-    npt.assert_equal(A.shape[0], m.shape[0])
+    npt.assert_equal(1, np.asarray(m).size)
 
 
 def test_eigenvector_centrality():
-    A = nig.get_random_graph(30, weighted=False)
+    A = nig.get_random_graph(30)
     m = nig.eigenvector_centrality(A, weighted=False)
-    npt.assert_equal(A.shape[0], m.shape[0])
-
-    A = nig.get_random_graph(30, weighted=True)
-    m = nig.eigenvector_centrality(A, weighted=True)
     npt.assert_equal(A.shape[0], m.shape[0])
 
 
