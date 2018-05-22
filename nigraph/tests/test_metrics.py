@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 # import os.path as op
 import numpy.testing as npt
+import numpy as np
 import nigraph as nig
 
 
@@ -21,11 +22,13 @@ def test_betweenness_centrality():
 
 
 def test_local_characteristic_path_length():
-    A = nig.get_random_graph(30, weighted=False)
+    # A = nig.get_random_graph(30, weighted=False)
+    A = np.zeros((3, 3))
+    A[:, 0] = 1
     m = nig.local_characteristic_path_length(A, weighted=False)
     npt.assert_equal(A.shape[0], m.shape[0])
 
-    A = nig.get_random_graph(30, weighted=True)
+    # A = nig.get_random_graph(30, weighted=True)
     m = nig.local_characteristic_path_length(A, weighted=True)
     npt.assert_equal(A.shape[0], m.shape[0])
 
@@ -41,7 +44,9 @@ def test_local_characteristic_path_length():
 
 
 def test_nodal_average_shortest_path_length():
-    A = nig.get_random_graph(30, weighted=False)
+    # A = nig.get_random_graph(30, weighted=False)
+    A = np.zeros((3, 3))
+    A[:, 0] = 1
     m = nig.nodal_average_shortest_path_length(A, weighted=False)
     npt.assert_equal(A.shape[0], m.shape[0])
 

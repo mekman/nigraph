@@ -91,7 +91,7 @@ if advanced:
 __all__ = ['degree', 'betweenness_centrality', 'dist_matrix_topological',
            'avg_shortest_path_length', 'absorption', 'driftness',
            'local_characteristic_path_length',
-           'within_module_metric', 'nodal_average_shortest_path_length',
+           'nodal_average_shortest_path_length',
            'within_module_degree_z_score', 'participation_coefficient',
            'number_k_max', 'wiring_costs',
            'node_importance', 'size_giant_component', 'synchronizability',
