@@ -70,8 +70,8 @@ import time
 from numpy.random import binomial
 from copy import deepcopy
 
-from sklearn.utils import graph_shortest_path as skl_graph
-from sklearn.utils.graph import connected_components as cs_graph_components
+import scipy.sparse.csgraph as skl_graph
+from scipy.sparse.csgraph import connected_components as cs_graph_components
 
 from ..utilities import convert_to_graph, inverse_adj, subgraph, \
     remove_nodes, make_undirected
