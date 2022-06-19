@@ -70,8 +70,8 @@ import time
 from numpy.random import binomial
 from copy import deepcopy
 
-from sklearn.utils import graph_shortest_path as skl_graph
-from sklearn.utils.graph import connected_components as cs_graph_components
+import scipy.sparse.csgraph as skl_graph
+from scipy.sparse.csgraph import connected_components as cs_graph_components
 
 from ..utilities import convert_to_graph, inverse_adj, subgraph, \
     remove_nodes, make_undirected
@@ -3044,12 +3044,12 @@ def spread_of_infection(A, weighted=False, n_steps=100, initial_infected=None,
         visit_times = np.zeros((n_iter, n_nodes))
         for iter in range(n_iter):
             if verbose:
-                print ' #iter %s // %s' % (iter + 1, n_iter)
+                print(' #iter %s // %s' % (iter + 1, n_iter))
             visit_time = _run_network()
             visit_times[iter] = visit_time
 
         if verbose:
-            print '--time', (time.time()-t0)/60.
+            print('--time', (time.time()-t0)/60.)
 
         return np.mean(visit_times, axis=0), visit_times
 
@@ -3057,16 +3057,16 @@ def spread_of_infection(A, weighted=False, n_steps=100, initial_infected=None,
         visit_times = np.zeros(n_nodes)
         for iter in range(n_iter):
             if verbose:
-                print ' #iter %s // %s' % (iter + 1, n_iter)
+                print(' #iter %s // %s' % (iter + 1, n_iter))
             visit_time = _run_network()
             if visit_time[visit_time < 0].size > 0:
-                print 'warning: not all nodes were visited, \
-                       consider increasing n_steps'
+                print('warning: not all nodes were visited, \
+                       consider increasing n_steps')
             visit_times += visit_time
 
         visit_times /= float(n_iter)
 
         if verbose:
-            print '--time', (time.time()-t0)/60.
+            print('--time', (time.time()-t0)/60.)
 
         return visit_times
